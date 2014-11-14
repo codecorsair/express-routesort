@@ -1,0 +1,34 @@
+{
+  "name": "express-routesort",
+  "version": "1.0.0",
+  "description": "A lightweight middle-ware for Express 4 that will sort routes using an optional priority value, route params, and folder depth.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jbcode3/express-routesort.git"
+  },
+  "keywords": [
+    "express",
+    "router",
+    "priority",
+    "sort",
+    "route",
+    "routes"
+  ],
+  "author": {
+    "name": "James Brown \"JB\"",
+    "email": "jb@codecorsair.com",
+    "url": "https://codecorsair.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jbcode3/express-routesort/issues"
+  },
+  "homepage": "https://github.com/jbcode3/express-routesort",
+  "dependencies": {
+    "express": "^4.0.0"
+  }
+}
