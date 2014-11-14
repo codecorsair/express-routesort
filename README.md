@@ -23,46 +23,46 @@ Syntax for routes are similar to express routes, with the addition of a priority
 
 In a simple app, this this example below, this package really is not necessary as it is very easy to see the order in which routes are being included and can avoid situations like in the example where a route with a first level param ('/:name') is used before a strictly defined route ('/mypage').  In an express application, using the route '/:name' before the route '/mypage' would result in your application never matching the '/mypage' route.
 
-  var express = require('express'),
-    router = require('express-routesort'),
-    app = express();
-
-  router.use(function (req, res, next) {
-    console.log(req.method, req.url);
-    next();
-  });
-
-  router.param('name', function (req, res, next, name) {
-    console.log(name);
-    req.name = name;
-    next();
-  });
-
-  router.get('/', function (req, res) {
-    res.send('Hello World!');
-  });
-
-  router.get('/:name', function (req, res) {
-    res.send('Hello ' + req.name);
-  });
-
-  router.get('/mypage', function (req, res) {
-    // Normally you would never hit this with Express
-    // based on the order it is being used.
-    res.send('I Work!');
-  });
-
-  router.post('/post', function (req, res) {
-    // do something
-  });
-
-  app.use('/', router.router());
-
-  var server = app.listen(3000, function () {
-    var host = server.address().address;
-    var port = server.address().port;
-    console.log('Example app listening at http://%s:%s', host, port);
-  });
+    var express = require('express'),
+      router = require('express-routesort'),
+      app = express();
+  
+    router.use(function (req, res, next) {
+      console.log(req.method, req.url);
+      next();
+    });
+  
+    router.param('name', function (req, res, next, name) {
+      console.log(name);
+      req.name = name;
+      next();
+    });
+  
+    router.get('/', function (req, res) {
+      res.send('Hello World!');
+    });
+  
+    router.get('/:name', function (req, res) {
+      res.send('Hello ' + req.name);
+    });
+  
+    router.get('/mypage', function (req, res) {
+      // Normally you would never hit this with Express
+      // based on the order it is being used.
+      res.send('I Work!');
+    });
+  
+    router.post('/post', function (req, res) {
+      // do something
+    });
+  
+    app.use('/', router.router());
+  
+    var server = app.listen(3000, function () {
+      var host = server.address().address;
+      var port = server.address().port;
+      console.log('Example app listening at http://%s:%s', host, port);
+    });
 
 
 ###Usage with Walk
@@ -75,84 +75,84 @@ Here is an example using walk to parse a directory and include routes from any "
 
 *app.js*
 
-  var express = require('express'),
-    router = require('express-routesort'),
-    walk = require('walk'),
-    app = express();
-
-  var walker = walk.walk(__dirname + '/lib', {
-    followLinks: false
-  });
-
-  var routers = [];
-  walker.on('file', function (root, stat, next) {
-    if (stat.name.match(/route.*\.js$/i)) {
-      routers.push(root + '/' + stat.name);
-    }
-    next();
-  });
-
-  walker.on('end', function() {
-    // Setup any express middleware
-    ...
-
-    // require all routers
-    routers.forEach(function (router) {
-      require(router);
+    var express = require('express'),
+      router = require('express-routesort'),
+      walk = require('walk'),
+      app = express();
+  
+    var walker = walk.walk(__dirname + '/lib', {
+      followLinks: false
     });
-    
-    // apply routes
-    app.use('/', router.router());
-
-    var server = app.listen(3000, function () {
-      var host = server.address().address;
-      var port = server.address().port;
-      console.log('Example app listening at http://%s:%s', host, port);
+  
+    var routers = [];
+    walker.on('file', function (root, stat, next) {
+      if (stat.name.match(/route.*\.js$/i)) {
+        routers.push(root + '/' + stat.name);
+      }
+      next();
     });
-  });
+  
+    walker.on('end', function() {
+      // Setup any express middleware
+      ...
+  
+      // require all routers
+      routers.forEach(function (router) {
+        require(router);
+      });
+      
+      // apply routes
+      app.use('/', router.router());
+  
+      var server = app.listen(3000, function () {
+        var host = server.address().address;
+        var port = server.address().port;
+        console.log('Example app listening at http://%s:%s', host, port);
+      });
+    });
 
 */lib/users/router.js*
   
-  var router = require('express-routesort');
+    var router = require('express-routesort');
+    
+    router.post('/login', function (req, res) {
+      // Login user
+    });
   
-  router.post('/login', function (req, res) {
-    // Login user
-  });
-
-  router.get('/u/:user', function (req, res) {
-    // show user profile
-  });
-
-  router.get('/api/user/:user', function (req, res) {
-    // return user info
-  }, 1); // giving this route a priority of 1 will place it in front of
-       // any route with a lower priority.  Default priority is 0. 
+    router.get('/u/:user', function (req, res) {
+      // show user profile
+    });
+  
+    router.get('/api/user/:user', function (req, res) {
+      // return user info
+    }, 1); // giving this route a priority of 1 will place it in front of
+         // any route with a lower priority.  Default priority is 0. 
 
   // and so on...
 
 */lib/posts/router.js*
 
-  var router = require('express-routesort');
+    var router = require('express-routesort');
+    
+    router.get('/', function (req, res) {
+      // show posts
+    });
   
-  router.get('/', function (req, res) {
-    // show posts
-  });
-
-  router.get('/:title', function (req, res) {
-    // show a single post
-  });
-
-  // and so on...
+    router.get('/:title', function (req, res) {
+      // show a single post
+    });
+  
+    // and so on...
   
 Walk typically will find files / folder based on alphabetical order.  If that were the case, and if each of these files use the standard express router, then the post router would be run before the user router.  This would mean the '/:title' route would override all of the routes within the user router as it will match the route first in the route stack.
 
 However, with Express-RouteSort the routes are included as follows:
 
-  GET '/api/user/:user'
-  GET '/'
-  GET '/login'
-  GET '/u/:user'
-  GET '/:title'
+    GET '/api/user/:user'
+    GET '/'
+    GET '/login'
+    GET '/u/:user'
+    GET '/:title'
 
 Now with this sorting, your routing will work just as you intended!
 
